@@ -1,3 +1,15 @@
 *.class
 *.log
 .DS_Store
+target
+**/target
+*/target
+.idea
+**/.idea
+*/.idea
+project/project
+**/project/project
+*/project/project
+project/target
+**/project/target
+*/project/target
