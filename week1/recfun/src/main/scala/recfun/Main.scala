@@ -8,6 +8,7 @@ object Main {
         print(pascal(col, row) + " ")
       println()
     }
+    println(countChange(4, List(1, 2)))
   }
 
   /**
@@ -42,16 +43,12 @@ object Main {
    * Exercise 3
    */
     def countChange(money: Int, coins: List[Int]): Int = {
-      def count(amount: Int, coin: Int): Int = {
-        amount / coin
-      }
       if (money == 0) {
         1
       } else if (money < 0 || coins.isEmpty) {
         0
       } else {
-        countChange(money - coins.head, coins.tail) +
-          count(money - coins.head, coins.head)
+        countChange(money, coins.tail) + countChange(money - coins.head, coins)
       }
     }
   }
