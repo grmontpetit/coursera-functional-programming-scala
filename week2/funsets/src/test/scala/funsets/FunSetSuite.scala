@@ -110,5 +110,44 @@ class FunSetSuite extends FunSuite {
     }
   }
 
+  test("intersect contains same elements") {
+    new TestSets {
+      val set1 = Set(1, 2)
+      val set2 = Set(2, 3)
+      val set3 = Set(4, 5)
+      val intersect1 = intersect(s3, s3)
+      val intersect2 = intersect(s2, s2)
+      val intersect3 = intersect(set1, set2)
+      val notIntersect = intersect(s2, s3)
+      assert(contains(intersect1, 3), s"The intersection between $s3 and $s3 should be 3")
+      assert(contains(intersect2, 2), s"The intersection between $s2 and $s2 should be 2")
+      assert(contains(intersect3, 2), s"The intersection between $set1 and $set2 should be 2")
+      assert(!contains(notIntersect, 0), s"The intersection between $set2 and $set3 should not exist")
+    }
+  }
+
+  test("difference between sets") {
+    new TestSets {
+      val set1 = Set(1, 2)
+      val set2 = Set(2, 3)
+      val ds = diff(set1, set2)
+      assert(contains(ds, 1), s"The difference between $set1 and $set2 should be 1 and 3")
+      assert(!contains(ds, 2), s"The difference between $set1 and $set2 should not contain 2")
+    }
+  }
+
+  test("filter a given set with a predicate") {
+    new TestSets {
+      val set1 = Set(1, 2, 3, 4)
+      val resultSet3 = Set(1, 2, 3)
+      val pred1 = (x: Int) => x != 1
+      val pred2 = (x: Int) => x == 1 || x == 2
+      val filter1 = filter(set1, pred1)
+      val filter2 = filter(set1, pred2)
+      assert(!contains(filter1, 1), s"The filtering of $set1 with predicate $pred1 should not contain 1")
+      assert(contains(filter2, 1), s"The filtering of $set1 with predicate $pred2 should contain 1")
+      assert(contains(filter2, 2), s"The filtering of $set1 with predicate $pred2 should contain 2")
+    }
+  }
 
 }
