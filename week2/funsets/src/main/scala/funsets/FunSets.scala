@@ -50,27 +50,41 @@ object FunSets {
   val bound = 1000
 
   /**
-   * Returns whether all bounded integers within `s` satisfy `p`.
-   */
-    def forall(s: Set, p: Int => Boolean): Boolean = {
+    * Returns whether all bounded integers within `s` satisfy `p`.
+    */
+  def forall(s: Set, p: Int => Boolean): Boolean = {
     def iter(a: Int): Boolean = {
-      if (???) ???
-      else if (???) ???
-      else iter(???)
+      if (a < bound && contains(s, a)) p(a) && iter(a + 1)
+      else if (a == bound) true
+      else iter(a + 1)
     }
-    iter(???)
+    iter(-bound)
   }
-  
+
   /**
    * Returns whether there exists a bounded integer within `s`
    * that satisfies `p`.
    */
-    def exists(s: Set, p: Int => Boolean): Boolean = ???
+    def exists(s: Set, p: Int => Boolean): Boolean = {
+      def iter(a: Int): Boolean = {
+        if (a < bound && contains(s, a)) p(a) || iter(a + 1)
+        else if (a == bound) false
+        else iter(a + 1)
+      }
+      iter(-bound)
+    }
   
   /**
    * Returns a set transformed by applying `f` to each element of `s`.
    */
-    def map(s: Set, f: Int => Int): Set = ???
+    def map(s: Set, f: Int => Int): Set = {
+      def iter(a: Int, result: Set): Set = {
+        if (a < bound && contains(s, a)) iter(a + 1, union(result, singletonSet(f(a))))
+        else if (a == bound) result
+        else iter(a + 1, result)
+      }
+      iter(0, Set())
+    }
   
   /**
    * Displays the contents of a set

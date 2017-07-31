@@ -104,9 +104,12 @@ class FunSetSuite extends FunSuite {
   test("union contains all elements of each set") {
     new TestSets {
       val s = union(s1, s2)
+      val set2 = Set(1, 2)
+      val set3 = Set(3, 4)
       assert(contains(s, 1), "Union 1")
       assert(contains(s, 2), "Union 2")
       assert(!contains(s, 3), "Union 3")
+      assert(union(set2, set3) == Set(1, 2, 3, 4))
     }
   }
 
@@ -150,4 +153,39 @@ class FunSetSuite extends FunSuite {
     }
   }
 
+  test("The forall function should check if all elements of the set satisfy p") {
+    val set1 = Set(1, 2, 3, 4)
+    val predicate = (x: Int) => x % 2 == 0
+    val predicate2 = (x: Int) => x == 2
+    val set2 = Set(2, 4, 6, 8)
+    val set3 = Set(2, 4, 6, 8, 10)
+    val set4 = Set(2, 3, 4, 6, 8, 10)
+    val set5 = Set(2, 2, 2, 2, 2)
+    assert(!forall(set1, predicate))
+    assert(forall(set2, predicate))
+    assert(forall(set3, predicate))
+    assert(!forall(set4, predicate))
+    assert(forall(set5, predicate2))
+  }
+
+  test("The exist function should check if 1 element of the set satisfy p") {
+    val set1 = Set(1, 2, 3, 4)
+    val set2 = Set(1, 2, 4)
+    val set3 = Set(3, 4, 5)
+    val predicate = (x: Int) => x % 3 == 0
+    val predicate2 = (x: Int) => x == 1
+    assert(exists(set1, predicate))
+    assert(!exists(set2, predicate))
+    assert(exists(set1, predicate2))
+    assert(!exists(set3, predicate2))
+  }
+
+  test("The map function should transform all the elements of a Set by applying an anonymous function to them") {
+    val set1 = Set(1, 2)
+    val applicative = (x: Int) => x * 2
+    assert(contains(map(set1, applicative), 2))
+    assert(!contains(map(set1, applicative), 1))
+    assert(!contains(map(set1, applicative), 3))
+    assert(contains(map(set1, applicative), 4))
+  }
 }
