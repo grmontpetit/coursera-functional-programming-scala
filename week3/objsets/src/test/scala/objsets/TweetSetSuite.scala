@@ -17,6 +17,12 @@ class TweetSetSuite extends FunSuite {
     val set4c = set3.incl(c)
     val set4d = set3.incl(d)
     val set5 = set4c.incl(d)
+
+    // Most retweeted Tweets
+    val set6 = set2.incl(new Tweet("t", "v", 25))
+    val set7 = set6.incl(new Tweet("y", "z", 4))
+    val set8 = set6.incl(new Tweet("i", "p", 1))
+    val set9 = set7.incl(new Tweet("t", "r", 90))
   }
 
   def asSet(tweets: TweetSet): Set[Tweet] = {
@@ -63,6 +69,13 @@ class TweetSetSuite extends FunSuite {
     }
   }
 
+  test("Check for the most retweeted Tweet") {
+    new TestSets {
+      val mostTweeted = set9.mostRetweeted
+      assert(mostTweeted.text == """r""" && mostTweeted.retweets == 90 && mostTweeted.user == """t""")
+    }
+  }
+
   test("descending: set5") {
     new TestSets {
       val trends = set5.descendingByRetweet
@@ -71,4 +84,4 @@ class TweetSetSuite extends FunSuite {
     }
   }
 
-  }
+}
