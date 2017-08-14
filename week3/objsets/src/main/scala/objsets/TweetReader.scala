@@ -53,7 +53,7 @@ object TweetReader {
   private val cnetTweets = TweetReader.ParseTweets.getTweetData("CNET", TweetData.CNET)
   private val gadgetlabTweets = TweetReader.ParseTweets.getTweetData("gadgetlab", TweetData.gadgetlab)
   private val mashableTweets = TweetReader.ParseTweets.getTweetData("mashable", TweetData.mashable)
-  
+
   private val sources = List(gizmodoTweets, techCrunchTweets, engadgetTweets, amazondealsTweets, cnetTweets, gadgetlabTweets, mashableTweets)
 
   val tweetMap: Map[String, List[Tweet]] =
@@ -76,5 +76,9 @@ object TweetReader {
 
   val allTweets: TweetSet = unionOfAllTweetSets(tweetSets, new Empty)
 
-  val getGiz: TweetSet = gizmodoTweets.map(t => new Empty().incl(t)).head
+  val allSize: Int = tweetMap.map(t => t._2.size).sum
+
+  val unionSize = allTweets.size
+
+  val mashable = mashableTweets.size
 }
