@@ -1,23 +1,23 @@
 package week4
 
-trait List[T] {
+trait List[+T] {
   def isEmpty: Boolean
   def head: T
   def tail: List[T]
+  def prepend[U >: T](elem: U): List[U] = new Cons(elem, this)
 }
 
 class Cons[T](val head: T, val tail: List[T]) extends List[T] {
-  override def isEmpty: Boolean = false
+  def isEmpty = false
 }
 
-class Nil[T] extends List[T] {
+object Nil extends List[Nothing] {
   override def isEmpty: Boolean = true
-  override def head: T = throw new NoSuchElementException("Nil.head")
-  override def tail: List[T] = throw new NoSuchElementException("Nil.tail")
+  override def tail: List[Nothing] = throw new NoSuchElementException
+  override def head: Nothing = throw new NoSuchElementException
 }
 
-object List {
-  def apply[T](): List[T] = new Nil
-  def apply[T](x: T): List[T] = new Cons(x, new Nil)
-  def apply[T](x: T, y: T): List[T] = new Cons(x, new Cons(y, new Nil))
+object test {
+  val x: List[String] = Nil
+  def f(xs: List[NonEmpty], x: Empty): List[IntSet] = xs.prepend(x)
 }
