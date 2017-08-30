@@ -43,7 +43,12 @@ class HuffmanSuite extends FunSuite {
 
   test("ordering is preserved with the combine function") {
     val leaflist = List(Leaf('e', 2), Leaf('t', 3), Leaf('x', 4))
-    assert(combine(leaflist) === List(Leaf('x', 4), Fork(Leaf('e', 2), Leaf('t', 3), List('e', 't'), 5)))
+    val t = Leaf('t', 3)
+    val e = Leaf('e', 2)
+    val x = Leaf('x', 4)
+    val te = Fork(t, e, List('t', 'e'), 5)
+    val xte = Fork(x, te, List('x', 't', 'e'), 9)
+    assert(combine(leaflist) === xte)
   }
 
   test("decode and encode a very short text should be identity") {
@@ -69,27 +74,43 @@ class HuffmanSuite extends FunSuite {
     }
   }
 
-  //        abcde(9)
-  //       /     \
-  //      a(5)  bcde(4)
-  //           /    \
-  //          /      \
-  //         /        \
-  //        /          \
-  //       bc(2)       de(2)
-  //      /  \        /  \
-  //     /    \      /    \
-  //    b(1)   c(1) d(1)   e(1)
+  //        abcdefgh(17)
+  //       /        \
+  //      a(8)     bcdefgh(9)
+  //              /       \
+  //             /         \
+  //           bcd(5)       \
+  //          /  \           \
+  //         /    \           \
+  //        b(3)  cd(2)        \
+  //             /  \         efgh(4)
+  //            c(1) d(1)    /    \
+  //                        ef(2)  \
+  //                       /  \     \
+  //                      e(1) f(1)  \
+  //                                gh(2)
+  //                               /  \
+  //                              g(1) h(1)
   test("create a code tree") {
-    val bc = Fork(Leaf('b', 1), Leaf('c', 1), List('b', 'c'), 2)
-    val de = Fork(Leaf('d', 1), Leaf('e', 1), List('d', 'e'), 2)
-    val bcde = Fork(bc, de, List('b', 'c', 'd', 'e'), 4)
-    val a = Leaf('a', 5)
-    val chars = List('a', 'b', 'c', 'd', 'e')
-    val expected = Fork(a, bcde, chars, 9)
+    val chars = List('a', 'b', 'c', 'd', 'e', 'f', 'g', 'h')
+    val a = Leaf('a', 8)
+    val b = Leaf('b', 3)
+    val c = Leaf('c', 1)
+    val d = Leaf('d', 1)
+    val e = Leaf('e', 1)
+    val f = Leaf('f', 1)
+    val g = Leaf('g', 1)
+    val h = Leaf('h', 1)
+    val gh = Fork(g, h, List('g', 'h'), 2)
+    val ef = Fork(e, f, List('e', 'f'), 2)
+    val cd = Fork(c, d, List('c', 'd'), 2)
+    val efgh = Fork(ef, gh, List('e', 'f', 'g', 'h'), 4)
+    val bcd = Fork(b, cd, List('b', 'c', 'd'), 4)
+    val bcdefgh = Fork(bcd, efgh, List('b', 'c', 'd', 'e', 'f', 'g', 'h'), 9)
+    val abcdefgh = Fork(a, bcdefgh, chars, 17)
     val tree = createCodeTree(chars)
-    assert(tree == expected)
+    //println(format(abcdefgh))
+    assert(tree == abcdefgh)
   }
-
 
 }
