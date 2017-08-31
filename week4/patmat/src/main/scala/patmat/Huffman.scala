@@ -76,7 +76,6 @@ object Huffman {
     case head :: tail =>
       val idx = count(head, tail, 1)
       List(head -> idx._1) ::: times(idx._2)
-    case head :: Nil  => List(head -> 1)
     case Nil          => List()
   }
 
@@ -99,7 +98,7 @@ object Huffman {
     */
   def makeOrderedLeafList(freqs: List[(Char, Int)]): List[Leaf] = freqs.sortWith(_._2 < _._2) match {
     case head :: tail => List(Leaf(head._1, head._2)) ::: makeOrderedLeafList(tail)
-    case head :: Nil  => List(Leaf(head._1, head._2))
+    //case head :: Nil  => List(Leaf(head._1, head._2))
     case Nil          => List()
     case _            => List()
   }
@@ -123,8 +122,6 @@ object Huffman {
     */
   def combine(trees: List[CodeTree]): List[CodeTree] = trees match {
     case head :: next :: tail => insert(head, next, tail)
-    case head :: next :: Nil  =>
-      List(Fork(head, next, chars(head) ::: chars(next), weight(head) + weight(next)))
     case _ :: Nil             => trees
     case Nil                  => trees
   }
@@ -132,7 +129,7 @@ object Huffman {
   def insert(head: CodeTree, next: CodeTree, list: List[CodeTree]): List[CodeTree] = {
     if (list.isEmpty) {
       List(Fork(head, next, chars(head) ::: chars(next), weight(head) + weight(next)))
-    } else if (weight(head) + weight(next) > weight(list.head)) {
+    } else if (weight(head) + weight(next) >= weight(list.head)) {
       list.head :: insert(head, next, list.tail)
     } else {
       List(Fork(head, next, chars(head) ::: chars(next), weight(head) + weight(next))) ::: list
@@ -173,9 +170,6 @@ object Huffman {
     val tree = until(singleton, combine)(orderedLeafList)
     tree.head
   }
-
-  //  case class Fork(left: CodeTree, right: CodeTree, chars: List[Char], weight: Int) extends CodeTree
-  //  case class Leaf(char: Char, weight: Int) extends CodeTree
 
   def printTree(tree: CodeTree): Unit = tree match {
     case Fork(l, r, c, w) => println(c + "\n|\\\n" + printTree(l) + " " + printTree(r))
