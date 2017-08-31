@@ -47,13 +47,18 @@ class HuffmanSuite extends FunSuite {
     val e = Leaf('e', 2)
     val x = Leaf('x', 4)
     val te = Fork(t, e, List('t', 'e'), 5)
-    val xte = Fork(x, te, List('x', 't', 'e'), 9)
     assert(combine(leaflist) === List(Leaf('x', 4), Fork(Leaf('e', 2), Leaf('t', 3), List('e', 't'), 5)))
   }
 
   test("decode and encode a very short text should be identity") {
     new TestTrees {
       assert(decode(t1, encode(t1)("ab".toList)) === "ab".toList)
+    }
+  }
+
+  test("decode something") {
+    new TestTrees {
+      assert(decode(t1, List(0, 1)) == "ab".toList)
     }
   }
 
@@ -74,17 +79,25 @@ class HuffmanSuite extends FunSuite {
     }
   }
 
-  //        xte(9)
+  //        etx(9)
   //       /   \
-  //      x(4) te(5)
-  //          /   \
-  //         /     \
-  //        t(3)    e(2)
+  //      et(5) x(4)
+  //     /   \
+  //    /     \
+  //   t(3)    e(2)
   test("create a code tree") {
-    val chars = List('x', 't', 'e', 'x', 't', 'x', 't', 'e', 't')
+    val chars = List('x', 't', 'e', 'x', 't', 'x', 't', 'e', 'x')
     val tree = createCodeTree(chars)
-    val expected = Fork(Leaf('x', 4), Fork(Leaf('t', 3), Leaf('e', 2), List('t', 'e'), 5), List('x', 't', 'e'), 9)
-    assert(tree == expected)
+    val expected = Fork(Fork(Leaf('e',2),Leaf('t',3),List('e', 't'),5),Leaf('x',4),List('e', 't', 'x'),9)
+    assert(tree === expected)
+  }
+
+  test("create a full test tree") {
+    val chars = List('a', 'a', 'a', 'a', 'a', 'a', 'a', 'a', 'b', 'b', 'b', 'c', 'd', 'e', 'f', 'g', 'h')
+    val tree = createCodeTree(chars)
+    //val expected = Fork(Fork(Leaf('e',2),Leaf('t',3),List('e', 't'),5),Leaf('x',4),List('e', 't', 'x'),9)
+    //assert(tree === expected)
+    println(tree)
   }
 
 }
