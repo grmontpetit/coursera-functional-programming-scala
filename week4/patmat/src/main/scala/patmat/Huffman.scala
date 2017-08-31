@@ -9,15 +9,15 @@ import common._
 object Huffman {
 
   /**
-  * A huffman code is represented by a binary tree.
-  *
-  * Every `Leaf` node of the tree represents one character of the alphabet that the tree can encode.
-  * The weight of a `Leaf` is the frequency of appearance of the character.
-  *
-  * The branches of the huffman tree, the `Fork` nodes, represent a set containing all the characters
-  * present in the leaves below it. The weight of a `Fork` node is the sum of the weights of these
-  * leaves.
-  */
+    * A huffman code is represented by a binary tree.
+    *
+    * Every `Leaf` node of the tree represents one character of the alphabet that the tree can encode.
+    * The weight of a `Leaf` is the frequency of appearance of the character.
+    *
+    * The branches of the huffman tree, the `Fork` nodes, represent a set containing all the characters
+    * present in the leaves below it. The weight of a `Fork` node is the sum of the weights of these
+    * leaves.
+    */
   abstract class CodeTree
   case class Fork(left: CodeTree, right: CodeTree, chars: List[Char], weight: Int) extends CodeTree
   case class Leaf(char: Char, weight: Int) extends CodeTree
@@ -98,7 +98,6 @@ object Huffman {
     */
   def makeOrderedLeafList(freqs: List[(Char, Int)]): List[Leaf] = freqs.sortWith(_._2 < _._2) match {
     case head :: tail => List(Leaf(head._1, head._2)) ::: makeOrderedLeafList(tail)
-    //case head :: Nil  => List(Leaf(head._1, head._2))
     case Nil          => List()
     case _            => List()
   }
@@ -121,18 +120,21 @@ object Huffman {
     * unchanged.
     */
   def combine(trees: List[CodeTree]): List[CodeTree] = trees match {
-    case head :: next :: tail => insert(head, next, tail)
-    case _ :: Nil             => trees
-    case Nil                  => trees
+    case head :: Nil  => trees
+    case Nil          => trees
+    case head :: tail =>
+      insert(List(Fork(head, tail.head, chars(head) ::: chars(tail.head), weight(head) + weight(tail.head))), tail.tail)
   }
 
-  def insert(head: CodeTree, next: CodeTree, list: List[CodeTree]): List[CodeTree] = {
-    if (list.isEmpty) {
-      List(Fork(head, next, chars(head) ::: chars(next), weight(head) + weight(next)))
-    } else if (weight(head) + weight(next) >= weight(list.head)) {
-      list.head :: insert(head, next, list.tail)
+  def insert(elem: List[CodeTree], tail: List[CodeTree]): List[CodeTree] = {
+    if (tail.isEmpty) {
+      elem
+    } else if (weight(elem.last) > weight(tail.head)) {
+      //val x = elem.dropRight(1) ::: List(elem.last) ::: List(tail.head)
+      val x = List(tail.head) ::: elem.dropRight(1) ::: List(elem.last)
+      insert(x, tail.tail)
     } else {
-      List(Fork(head, next, chars(head) ::: chars(next), weight(head) + weight(next))) ::: list
+      elem ::: tail
     }
   }
 
@@ -184,7 +186,17 @@ object Huffman {
     * This function decodes the bit sequence `bits` using the code tree `tree` and returns
     * the resulting list of characters.
     */
-  def decode(tree: CodeTree, bits: List[Bit]): List[Char] = ???
+  def decode(tree: CodeTree, bits: List[Bit]): List[Char] = {
+    def acc(path: CodeTree, remaining: List[Bit], accumulator: List[Char]): List[Char] = path match {
+      case Leaf(elem, weight)      =>
+        if (remaining.isEmpty) accumulator
+        else acc(tree, remaining.tail, accumulator ::: List(elem))
+      case Fork(left, right, _, _) =>
+        if (remaining.head == 0) acc(left, remaining.tail, accumulator)
+        else acc(right, remaining.tail, accumulator)
+    }
+    acc(tree, bits, List())
+  }
 
   /**
     * A Huffman coding tree for the French language.
