@@ -123,15 +123,14 @@ object Huffman {
     case head :: Nil  => trees
     case Nil          => trees
     case head :: tail =>
-      insert(List(Fork(head, tail.head, chars(head) ::: chars(tail.head), weight(head) + weight(tail.head))), tail.tail)
+      insert(List(Fork(head, tail.head, (chars(head) ::: chars(tail.head)).sorted, weight(head) + weight(tail.head))), tail.tail)
   }
 
   def insert(elem: List[CodeTree], tail: List[CodeTree]): List[CodeTree] = {
     if (tail.isEmpty) {
       elem
     } else if (weight(elem.last) > weight(tail.head)) {
-      //val x = elem.dropRight(1) ::: List(elem.last) ::: List(tail.head)
-      val x = List(tail.head) ::: elem.dropRight(1) ::: List(elem.last)
+      val x = tail.head :: elem.dropRight(1) ::: List(elem.last)
       insert(x, tail.tail)
     } else {
       elem ::: tail
@@ -171,11 +170,6 @@ object Huffman {
     val orderedLeafList = makeOrderedLeafList(occurences)
     val tree = until(singleton, combine)(orderedLeafList)
     tree.head
-  }
-
-  def printTree(tree: CodeTree): Unit = tree match {
-    case Fork(l, r, c, w) => println(c + "\n|\\\n" + printTree(l) + " " + printTree(r))
-    case Leaf(c, w)       => println(c)
   }
 
   // Part 3: Decoding
