@@ -13,7 +13,7 @@ class HuffmanSuite extends FunSuite {
   trait TestTrees {
     val t1 = Fork(Leaf('a', 2), Leaf('b', 3), List('a', 'b'), 5)
     val t2 = Fork(Fork(Leaf('a', 2), Leaf('b', 3), List('a', 'b'), 5), Leaf('d', 4), List('a', 'b', 'd'), 9)
-    val t3 = Fork(Leaf('c', 2), Leaf('d', 3), List('c', 'd'), 5)
+    val t3 = Fork(Leaf('e', 2), Leaf('f', 3), List('e', 'f'), 5)
   }
 
   test("weight of a larger tree") {
@@ -71,33 +71,43 @@ class HuffmanSuite extends FunSuite {
     new TestTrees {
       val trees = List(t1, t3)
       val complexTrees = List(t1, t2, t3)
-      val expected = List(Fork(Fork(Leaf('a', 2), Leaf('b', 3), List('a', 'b'), 5), Fork(Leaf('c', 2), Leaf('d', 3), List('c', 'd'), 5), List('a', 'b', 'c', 'd'), 10))
-      val complexExpected = List(Fork(Fork(Leaf('c', 2), Leaf('d', 3), List('c', 'd'), 5), Fork(Fork(Leaf('a', 2), Leaf('b', 3), List('a', 'b'), 5), Fork(Fork(Leaf('a', 2), Leaf('b', 3), List('a', 'b'), 5), Leaf('d', 4), List('a', 'b', 'd'), 9), List('a', 'b', 'a', 'b', 'd'), 14), List('c', 'd', 'a', 'b', 'a', 'b', 'd'), 19))
+      val expected = List(Fork(Fork(Leaf('a', 2), Leaf('b', 3), List('a', 'b'), 5), Fork(Leaf('e', 2), Leaf('f', 3), List('e', 'f'), 5), List('a', 'b', 'e', 'f'), 10))
       assert(until(singleton, combine)(trees) == expected)
-      assert(until(singleton, combine)(complexTrees) == complexExpected)
-
     }
   }
 
   //        etx(9)
   //       /   \
-  //      et(5) x(4)
-  //     /   \
-  //    /     \
-  //   t(3)    e(2)
+  //      x(4) et(5)
+  //          /   \
+  //         /     \
+  //        e(2)    t(3)
   test("create a code tree") {
     val chars = List('x', 't', 'e', 'x', 't', 'x', 't', 'e', 'x')
     val tree = createCodeTree(chars)
-    val expected = Fork(Fork(Leaf('e',2),Leaf('t',3),List('e', 't'),5),Leaf('x',4),List('e', 't', 'x'),9)
+    val expected = Fork(Leaf('x',4),Fork(Leaf('e',2),Leaf('t',3),List('e', 't'),5),List('e', 't', 'x'),9)
     assert(tree === expected)
   }
 
-  test("create a full test tree") {
+  ignore("create a full test tree") {
     val chars = List('a', 'a', 'a', 'a', 'a', 'a', 'a', 'a', 'b', 'b', 'b', 'c', 'd', 'e', 'f', 'g', 'h')
     val tree = createCodeTree(chars)
-    //val expected = Fork(Fork(Leaf('e',2),Leaf('t',3),List('e', 't'),5),Leaf('x',4),List('e', 't', 'x'),9)
-    //assert(tree === expected)
-    println(tree)
+    val a = Leaf('a', 8)
+    val b = Leaf('b', 3)
+    val c = Leaf('c', 1)
+    val d = Leaf('d', 1)
+    val e = Leaf('e', 1)
+    val f = Leaf('f', 1)
+    val g = Leaf('g', 1)
+    val h = Leaf('h', 1)
+    val gh = Fork(g, h, List('g', 'h'), 2)
+    val ef = Fork(e, f, List('e', 'f'), 2)
+    val cd = Fork(g, h, List('c', 'd'), 2)
+    val bcd = Fork(b, cd, List('b','c','d'), 5)
+    val efgh = Fork(ef, gh, List('e','f','g','h'), 4)
+    val bcdefgh = Fork(bcd, efgh, List('b','c','d','e','f','g'), 9)
+    val expected = Fork(a, bcdefgh, List('a','b','c','d','e','f','g','h'), 17)
+    assert(tree === expected)
   }
 
 }
