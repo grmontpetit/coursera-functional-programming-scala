@@ -123,18 +123,20 @@ object Huffman {
     case head :: Nil  => trees
     case Nil          => trees
     case head :: tail =>
-      insert(List(Fork(head, tail.head, (chars(head) ::: chars(tail.head)).sorted, weight(head) + weight(tail.head))), tail.tail)
+      insert(Fork(head, tail.head, (chars(head) ::: chars(tail.head)).sorted, weight(head) + weight(tail.head)), tail.tail)
   }
 
-  def insert(elem: List[CodeTree], tail: List[CodeTree]): List[CodeTree] = {
-    if (tail.isEmpty) {
-      elem
-    } else if (weight(elem.last) > weight(tail.head)) {
-      val x = tail.head :: elem.dropRight(1) ::: List(elem.last)
-      insert(x, tail.tail)
-    } else {
-      elem ::: tail
+  def insert(elem: CodeTree, tail: List[CodeTree]): List[CodeTree] = {
+    def insertSplit(before: List[CodeTree], e: CodeTree, after: List[CodeTree]): List[CodeTree] = {
+      if (after.isEmpty) {
+        before ::: List(elem)
+      } else if (weight(after.head) >= weight(e)) {
+        before ::: List(elem) ::: after
+      } else {
+        insertSplit(before :+ after.head, elem, after.tail)
+      }
     }
+    insertSplit(List(), elem, tail)
   }
 
   /**

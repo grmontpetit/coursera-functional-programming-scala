@@ -46,8 +46,8 @@ class HuffmanSuite extends FunSuite {
     val t = Leaf('t', 3)
     val e = Leaf('e', 2)
     val x = Leaf('x', 4)
-    val te = Fork(t, e, List('t', 'e'), 5)
-    assert(combine(leaflist) === List(Leaf('x', 4), Fork(Leaf('e', 2), Leaf('t', 3), List('e', 't'), 5)))
+    val te = Fork(e, t, List('e', 't'), 5)
+    assert(combine(leaflist) === List(x, te))
   }
 
   test("decode and encode a very short text should be identity") {
@@ -76,6 +76,35 @@ class HuffmanSuite extends FunSuite {
     }
   }
 
+  //               _______________________
+  // Letter        | z  | x  | t   | e   |
+  // Frequency (K) | 10 | 4  | 3   | 2   |
+  // Bits          | 0  | 00 | 011 | 010 |
+  //               -----------------------
+  //        zxte(19)
+  //       /    \
+  //     etx(9)  z(10)
+  //    /     \
+  //   x(4)   et(5)
+  //          /   \
+  //         e(2)  t(3)
+  test("test the combine function again") {
+    val leaflist = List(Leaf('e', 2), Leaf('t', 3), Leaf('x', 4), Leaf('z', 10))
+    val t = Leaf('t', 3)
+    val e = Leaf('e', 2)
+    val x = Leaf('x', 4)
+    val z = Leaf('z', 10)
+    val et = Fork(e, t, List('e', 't'), 5)
+    val etx = Fork(x, et, List('e','t','x'), 9)
+    val etxz = Fork(etx, z, List('e','t','x','z'), 19)
+    assert(until(singleton, combine)(leaflist) === List(etxz))
+  }
+
+  //               __________________
+  // Letter        | x  |  t  |  e  |
+  // Frequency (K) | 4  | 3   | 2   |
+  // Bits          | 0  | 101 | 100 |
+  //               ------------------
   //        etx(9)
   //       /   \
   //      x(4) et(5)
@@ -89,6 +118,46 @@ class HuffmanSuite extends FunSuite {
     assert(tree === expected)
   }
 
+  //               _____________________________________
+  // Letter        | A  | B  |  C  |  D  |  E   | F    |
+  // Frequency (K) | 10 | 7  | 5   |  4  | 2    | 1    |
+  // Bits          | 11 | 10 | 00  | 011 | 0101 | 0100 |
+  //               -------------------------------------
+  //          ABCDEF(29)
+  //         /       \
+  //       CDEF(12)  AB(17)
+  //      /    \    /  \
+  //     /      \  B(7) A(10)
+  //    C(5)     \
+  //             DEF(12)
+  //            /   \
+  //           EF(3) D(4)
+  //          /  \
+  //         F(1) E(2)
+  //               _____________________________________
+  test("test a tree with weights") {
+    val chars = List('A','A','A','A','A','A','A','A','A','A',
+                     'B','B','B','B','B','B','B',
+                     'C','C','C','C','C',
+                     'D','D','D','D',
+                     'E','E',
+                     'F')
+    val a = Leaf('A', 10)
+    val b = Leaf('B', 7)
+    val c = Leaf('C', 5)
+    val d = Leaf('D', 4)
+    val e = Leaf('E', 2)
+    val f = Leaf('F', 1)
+    val ab = Fork(b, a, List('A', 'B'), 17)
+    val ef = Fork(f, e, List('E', 'F'), 3)
+    val `def` = Fork(ef, d, List('D', 'E', 'F'), 7)
+    val cdef = Fork(c, `def`, List('C', 'D', 'E', 'F'), 12)
+    val abcdef = Fork(cdef, ab, List('A','B','C','D','E','F'), 29)
+    val tree = createCodeTree(chars)
+    assert(tree === abcdef)
+  }
+
+  // The sample tree given in the assignment page is wrong
   ignore("create a full test tree") {
     val chars = List('a', 'a', 'a', 'a', 'a', 'a', 'a', 'a', 'b', 'b', 'b', 'c', 'd', 'e', 'f', 'g', 'h')
     val tree = createCodeTree(chars)
