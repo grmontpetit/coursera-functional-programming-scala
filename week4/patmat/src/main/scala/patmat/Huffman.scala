@@ -183,13 +183,14 @@ object Huffman {
     * the resulting list of characters.
     */
   def decode(tree: CodeTree, bits: List[Bit]): List[Char] = {
-    def acc(path: CodeTree, remaining: List[Bit], accumulator: List[Char]): List[Char] = path match {
-      case Leaf(elem, weight)      =>
-        if (remaining.isEmpty) accumulator
-        else acc(tree, remaining.tail, accumulator ::: List(elem))
+    def acc(currentNode: CodeTree, remainingBits: List[Bit], characters: List[Char]): List[Char] = currentNode match {
+      case Leaf(elem, weight) =>
+        if (remainingBits.isEmpty) characters :+ elem
+        else acc(tree, remainingBits, characters :+ elem)
       case Fork(left, right, _, _) =>
-        if (remaining.head == 0) acc(left, remaining.tail, accumulator)
-        else acc(right, remaining.tail, accumulator)
+        if (remainingBits.isEmpty) characters
+        else if (remainingBits.head == 1) acc(right, remainingBits.tail, characters)
+        else acc(left, remainingBits.tail, characters)
     }
     acc(tree, bits, List())
   }
@@ -210,8 +211,7 @@ object Huffman {
   /**
     * Write a function that returns the decoded secret
     */
-  def decodedSecret: List[Char] = ???
-
+  def decodedSecret: List[Char] = decode(frenchCode, secret)
 
   // Part 4a: Encoding using Huffman tree
 
@@ -219,7 +219,16 @@ object Huffman {
     * This function encodes `text` using the code tree `tree`
     * into a sequence of bits.
     */
-  def encode(tree: CodeTree)(text: List[Char]): List[Bit] = ???
+  def encode(tree: CodeTree)(text: List[Char]): List[Bit] = {
+    def recursiveDfs(node: CodeTree, elem: Char, accumulator: List[Bit]): List[Bit] = node match {
+      case Leaf(e, weight)              => accumulator
+      case Fork(left, right, c, weight) =>
+        if (chars(left).contains(elem)) recursiveDfs(left, elem, accumulator :+ 0)
+        else if (chars(right).contains(elem)) recursiveDfs(right, elem, accumulator :+ 1)
+        else accumulator
+    }
+    text.flatMap(c => recursiveDfs(tree, c, List()))
+  }
 
   // Part 4b: Encoding using code table
 
@@ -229,7 +238,10 @@ object Huffman {
     * This function returns the bit sequence that represents the character `char` in
     * the code table `table`.
     */
-  def codeBits(table: CodeTable)(char: Char): List[Bit] = ???
+  def codeBits(table: CodeTable)(char: Char): List[Bit] = table.find(c => c._1 == char) match {
+    case Some(elem) => elem._2
+    case None       => throw new Error("Character not found in the CodeTable.")
+  }
 
   /**
     * Given a code tree, create a code table which contains, for every character in the
@@ -239,14 +251,20 @@ object Huffman {
     * a valid code tree that can be represented as a code table. Using the code tables of the
     * sub-trees, think of how to build the code table for the entire tree.
     */
-  def convert(tree: CodeTree): CodeTable = ???
+  def convert(tree: CodeTree): CodeTable = {
+    def recursive(node: CodeTree, accumulator: List[(Char, List[Bit])]): List[(Char, List[Bit])] = node match {
+      case Leaf(e, w)           => accumulator :+ (e, encode(tree)(List(e)))
+      case Fork(l, r, chars, w) => recursive(l, accumulator) ::: recursive(r, accumulator)
+    }
+    recursive(tree, List())
+  }
 
   /**
     * This function takes two code tables and merges them into one. Depending on how you
     * use it in the `convert` method above, this merge method might also do some transformations
     * on the two parameter code tables.
     */
-  def mergeCodeTables(a: CodeTable, b: CodeTable): CodeTable = ???
+  def mergeCodeTables(a: CodeTable, b: CodeTable): CodeTable = a ::: b
 
   /**
     * This function encodes `text` according to the code tree `tree`.
@@ -254,5 +272,8 @@ object Huffman {
     * To speed up the encoding process, it first converts the code tree to a code table
     * and then uses it to perform the actual encoding.
     */
-  def quickEncode(tree: CodeTree)(text: List[Char]): List[Bit] = ???
+  def quickEncode(tree: CodeTree)(text: List[Char]): List[Bit] = {
+    val codeTable = convert(tree).sortWith(_._1 < _._1)
+    codeTable.filter(t => text.contains(t._1)).flatMap(x => x._2)
+  }
 }
