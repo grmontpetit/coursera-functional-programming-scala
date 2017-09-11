@@ -1,4 +1,4 @@
-object Main extends App {
+object Lecture51 extends App {
   println("This is week 5")
 
   val myList = List('a', 'b', 'c', 'd')
