@@ -54,11 +54,13 @@ object Anagrams {
    *    List(('a', 1), ('e', 1), ('t', 1)) -> Seq("ate", "eat", "tea")
    *
    */
-                                     //List[(Char, Int)] List[String]
-  lazy val dictionaryByOccurrences: Map[Occurrences, List[Word]] = ??? //sentenceOccurrences(dictionary).map(x => x.)
+
+  lazy val dictionaryByOccurrences: Map[Occurrences, List[Word]] =
+    dictionary.map(w => (wordOccurrences(w), w)).groupBy(_._1).map(y => y._1 -> y._2.map(_._2))
+
 
   /** Returns all the anagrams of a given word. */
-  def wordAnagrams(word: Word): List[Word] = ???
+  def wordAnagrams(word: Word): List[Word] = dictionaryByOccurrences(wordOccurrences(word))
 
   /** Returns the list of all subsets of the occurrence list.
    *  This includes the occurrence itself, i.e. `List(('k', 1), ('o', 1))`
@@ -79,10 +81,67 @@ object Anagrams {
    *      List(('a', 2), ('b', 2))
    *    )
    *
+   *      List(
+   *      List(),
+   *      List(('a', 1)),
+   *      List(('a', 2)),
+   *      List(('b', 1)),
+   *      List(('b', 2)),
+   *      List(('a', 1), ('b', 1)),
+   *      List(('a', 2), ('b', 1)),
+   *      List(('a', 1), ('b', 2)),
+   *      List(('a', 2), ('b', 2))
+   *    )
    *  Note that the order of the occurrence list subsets does not matter -- the subsets
    *  in the example above could have been displayed in some other order.
    */
-  def combinations(occurrences: Occurrences): List[Occurrences] = ???
+  // type Occurrences = List[(Char, Int)]
+  def combinations(occurrences: Occurrences): List[Occurrences] = occurrences match {
+    case head :: tail =>
+      (1 to head._2).map(i => (head._1, i)).toList :: combinations(tail)
+    case head :: Nil =>
+      List((1 to head._2).map(x => (head._1, x)).toList)
+    case Nil         => List(List())
+  }
+
+
+//  def combinations(occurrences: Occurrences): List[Occurrences] = occurrences match {
+//    case head :: tail => (1 to head._2).map(x => (head._1, x)).toList :: combinations(tail)
+//    case head :: Nil  => List((1 to head._2).map(x => (head._1, x)).toList)
+//    case Nil          => List(List())
+//  }
+
+//  def print(occurrences: Occurrences): Unit = {
+//    val abCombinations = occurrences.map(o => (1 to o._2).map(i => (o._1, i)))
+//    println(abCombinations :: abCombinations.permutations.toList)
+//  }
+
+//  def combinations(occurrences: Occurrences): List[Occurrences] = {
+//    val abCombinations = occurrences.map(o => (1 to o._2).map(i => (o._1, i)))
+//    abCombinations :: abCombinations.permutations.toList
+//  }
+
+//  def combinations(occurrences: Occurrences): List[Occurrences] = occurrences match {
+//    case head :: tail =>
+//      if (head._2 > 1)
+//        List(head) :: combinations((head._1, head._2 - 1) :: tail)
+//      else
+//        List((head._1, head._2)) :: combinations(tail)
+//    case head :: Nil  =>
+//      if (head._2 > 1)
+//        List(head) :: combinations(List((head._1, head._2 - 1)))
+//      else
+//        List(List(head))
+//    case Nil          => List(List())
+//  }
+
+
+//  def combinations(occurrences: Occurrences): List[Occurrences] = {
+//    if (occurrences.head._2 > 1){
+//      List(occurrences.head) :: combinations((occurrences.head._1, occurrences.head._2) :: occurrences.tail)
+//    }
+//    else List(occurrences.head) :: combinations(occurrences.tail)
+//  }
 
   /** Subtracts occurrence list `y` from occurrence list `x`.
    *
