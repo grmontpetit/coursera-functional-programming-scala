@@ -96,12 +96,17 @@ object Anagrams {
    *  in the example above could have been displayed in some other order.
    */
   // type Occurrences = List[(Char, Int)]
+//  def combinations(occurrences: Occurrences): List[Occurrences] = occurrences match {
+//    case head :: tail => List(head) :: combinations(tail)
+//    case head :: Nil  => List(List(head))
+//    case Nil          => List(List())
+//
+//  }
+
   def combinations(occurrences: Occurrences): List[Occurrences] = occurrences match {
-    case head :: tail =>
-      (1 to head._2).map(i => (head._1, i)).toList :: combinations(tail)
-    case head :: Nil =>
-      List((1 to head._2).map(x => (head._1, x)).toList)
-    case Nil         => List(List())
+    case head :: tail => (1 to head._2).toList.flatMap(i => List((head._1, i)) :: combinations(tail))
+    case head :: Nil  => (1 to head._2).toList.map(x => List((head._1, x)))
+    case Nil          => List(List())
   }
 
 
@@ -153,7 +158,7 @@ object Anagrams {
    *  Note: the resulting value is an occurrence - meaning it is sorted
    *  and has no zero-entries.
    */
-  def subtract(x: Occurrences, y: Occurrences): Occurrences = ???
+  def subtract(x: Occurrences, y: Occurrences): Occurrences = x.filterNot(y.contains(_))
 
   /** Returns a list of all anagram sentences of the given sentence.
    *
